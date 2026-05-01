@@ -47,11 +47,11 @@
 </head>
 <body>
 
-  <!-- Fixed hero background — position:fixed parallax replacement.
-       Stays locked while page content scrolls over it. No custom scroll container needed. -->
+  <!-- Hero background — JS parallax scrolls this at half speed.
+       position:fixed is the base; translateY is updated on scroll. -->
   <div class="hero-bg" aria-hidden="true"></div>
 
-  <!-- Navigation — correct order: Home › Filmography › About › Gallery › Contact -->
+  <!-- Navigation — order: Home › Filmography › About › Gallery › Contact -->
   <nav>
     <div class="container">
       <div class="logo">
@@ -75,7 +75,6 @@
     <div class="hero-content">
       <h1>Naseef P P</h1>
       <p class="tagline">Actor • Director</p>
-      <!-- Two CTAs: primary solid + secondary ghost -->
       <div class="cta-group">
         <a href="#teasers" class="cta">View Filmography</a>
         <a href="#contact" class="cta cta-ghost">Get in Touch</a>
@@ -83,12 +82,10 @@
     </div>
   </section>
 
-  <!-- FILMOGRAPHY — moved above About to match nav order -->
+  <!-- FILMOGRAPHY -->
   <section id="teasers" class="teasers">
     <div class="container">
       <h2>Filmography</h2>
-      <!-- Swiper nav buttons sit OUTSIDE the swiper overflow-hidden container
-           so they never overlap the poster cards on desktop -->
       <div class="swiper-outer">
         <div class="swiper featured-swiper">
           <div class="swiper-wrapper">
@@ -191,7 +188,7 @@
 
           </div>
         </div>
-        <!-- Arrows outside .featured-swiper so they clear the poster cards -->
+        <!-- Arrows outside swiper on desktop, inside on mobile via CSS -->
         <div class="swiper-button-prev"></div>
         <div class="swiper-button-next"></div>
       </div>
@@ -199,7 +196,7 @@
     </div>
   </section>
 
-  <!-- ABOUT — moved below Filmography -->
+  <!-- ABOUT -->
   <section id="about" class="bio">
     <div class="container">
       <div class="bio-content">
@@ -211,10 +208,12 @@
           <li><i class="fas fa-palette"></i> Hair: Curly, Black</li>
           <li><i class="fas fa-eye"></i> Eyes: Dark Brown</li>
 
-          <!-- Language pills — accent-colored text, no border, play icon signals interactivity -->
+          <!-- Language pills -->
           <li class="lang-item">
-            <i class="fas fa-globe"></i>
-            <span class="lang-label">Languages:</span>
+            <span class="lang-item-top">
+              <i class="fas fa-globe"></i>
+              <span class="lang-label">Languages:</span>
+            </span>
             <span class="lang-tags">
               <button class="lang-tag" data-video="c6k5ZNzTsw0" data-lang="English">
                 English <i class="fas fa-play"></i>
@@ -231,28 +230,39 @@
             </span>
           </li>
 
-          <!-- Training — click to reveal certificate -->
+          <!-- Training — click swaps bio image with certificate -->
           <li class="cert-item">
-            <div class="cert-trigger" tabindex="0" role="button" aria-expanded="false" aria-controls="cert-accordion">
+            <div class="cert-trigger" tabindex="0" role="button" aria-expanded="false">
               <i class="fas fa-graduation-cap"></i>
               <span>Training: Screen Acting Course, Nova Film Institute</span>
               <i class="fas fa-chevron-down cert-chevron"></i>
-            </div>
-            <div class="cert-accordion" id="cert-accordion" aria-hidden="true">
-              <img src="images/certificate-nova-acting-course.jpg"
-                   alt="Nova Film Institute — Screen Acting Course Certificate"
-                   loading="lazy" />
-              <p>Nova Film Institute, Ernakulam</p>
             </div>
           </li>
 
         </ul>
       </div>
-      <div class="bio-image" role="img" aria-label="Naseef P P — versatility still"></div>
+
+      <!-- Bio image slot — crossfades between portrait and certificate -->
+      <div class="bio-image-wrap">
+        <div class="bio-image bio-img-portrait"
+             role="img"
+             aria-label="Naseef P P — versatility still"></div>
+        <div class="bio-image bio-img-cert"
+             role="img"
+             aria-label="Nova Film Institute — Screen Acting Course Certificate"
+             aria-hidden="true">
+          <img src="images/certificate-nova-acting-course.jpg"
+               alt="Nova Film Institute Screen Acting Course Certificate"
+               loading="lazy" />
+        </div>
+        <!-- Caption shown only when certificate is active -->
+        <p class="bio-cert-caption" aria-live="polite"></p>
+      </div>
+
     </div>
   </section>
 
-  <!-- GALLERY — updated tab labels -->
+  <!-- GALLERY -->
   <section id="gallery" class="gallery-tease">
     <div class="container">
       <h2>Stills &amp; Frames</h2>
@@ -381,7 +391,7 @@
     </div>
   </div>
 
-  <!-- Language Video Modal (portrait — YouTube Shorts 9:16) -->
+  <!-- Language Video Modal -->
   <div id="lang-modal" class="lang-modal" role="dialog" aria-modal="true">
     <div class="lang-modal-content">
       <div class="lang-modal-header">
@@ -396,9 +406,7 @@
     </div>
   </div>
 
-  <!-- Swiper JS pinned to v11 -->
   <script src="https://unpkg.com/swiper@11/swiper-bundle.min.js"></script>
-  <!-- Site JS -->
   <script src="script.js"></script>
 
 </body>

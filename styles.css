@@ -2,8 +2,13 @@
    CSS CUSTOM PROPERTIES
    ============================================================ */
 :root {
-  --accent:       #B8952A;
-  --accent-hover: #9a7b22;
+  --accent:       #9E7B2F;   /* Warm brownish gold */
+  --accent-hover: #7d6025;
+  --accent-subtle: rgba(158, 123, 47, 0.15);
+  /* 100svh fix: small viewport height — prevents iOS Safari
+     jump when browser chrome shows/hides on scroll.
+     Falls back to --vh set by JS for older iOS. */
+  --hero-height: 100svh;
 }
 
 /* ============================================================
@@ -19,17 +24,14 @@ body {
   color: #000;
   line-height: 1.6;
 }
-section[id] {
-  scroll-margin-top: 80px;
-}
+section[id] { scroll-margin-top: 80px; }
 a { text-decoration: none; color: inherit; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
 /* ============================================================
-   FIXED HERO BACKGROUND — parallax replacement.
-   position:fixed locks it while the page scrolls over it.
-   All content sections have opaque backgrounds, so this
-   only shows through the transparent hero section.
+   HERO BACKGROUND
+   position:fixed is the base layer. JS parallax updates
+   translateY at half scroll speed for depth effect.
    ============================================================ */
 .hero-bg {
   position: fixed;
@@ -37,6 +39,9 @@ a { text-decoration: none; color: inherit; }
   background-image: url('images/hero-headshot-mango.jpg');
   background-size: cover;
   background-position: 72% 33%;
+  /* will-change tells the browser to composite this layer
+     separately — keeps parallax smooth, avoids repaints */
+  will-change: transform;
   animation: heroFadeIn 1.5s ease-out both;
   z-index: -1;
 }
@@ -67,21 +72,24 @@ nav ul li a {
 nav ul li a:hover      { color: var(--accent); }
 nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 
-.hamburger { display: none; flex-direction: column; cursor: pointer; background: none; border: none; padding: 0; }
+.hamburger {
+  display: none; flex-direction: column; cursor: pointer;
+  background: none; border: none; padding: 0;
+}
 .hamburger span { width: 25px; height: 3px; background: #000; margin: 3px 0; transition: 0.3s; }
 
 /* ============================================================
    HERO SECTION
+   Uses --hero-height (100svh) to prevent iOS Safari jump.
+   JS sets --vh as a fallback for older browsers.
    ============================================================ */
 .hero {
-  height: 100vh;
+  height: var(--hero-height);
   display: flex;
   align-items: flex-end;
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;   /* left-align block */
   position: relative;
   padding-top: 80px;
-  /* No background here — .hero-bg handles it via position:fixed */
 }
 .hero::before {
   content: '';
@@ -97,9 +105,8 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
   max-width: 600px;
   padding: 2rem 2rem 5rem;
   animation: fadeInUp 1s ease-out both;
-  margin-right: 30%;
-  transition: margin-right 1s ease;
-  border-radius: 0 10px 10px 0;
+  margin-left: 5%;
+  text-align: left;   /* left-align all text and inline elements */
 }
 .hero h1 {
   font-size: 5rem;
@@ -121,14 +128,16 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
   animation: fadeInUp 1s ease-out 0.4s both;
 }
 
-/* CTA group — primary solid + secondary ghost side by side */
+/* CTA group — left-aligned */
 .cta-group {
   display: flex;
   gap: 0.75rem;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   animation: fadeInUp 1s ease-out 0.6s both;
 }
+
+/* Primary CTA — solid accent fill */
 .cta {
   background: var(--accent);
   color: #fff;
@@ -137,27 +146,29 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
   text-transform: uppercase;
   font-size: 0.9rem;
   border-radius: 5px;
+  border: 2px solid var(--accent);
   transition: background 0.3s, transform 0.3s;
   display: inline-block;
   font-family: inherit;
 }
-.cta:hover { background: var(--accent-hover); transform: translateY(-2px); }
+.cta:hover { background: var(--accent-hover); border-color: var(--accent-hover); transform: translateY(-2px); }
 
+/* Ghost CTA — outline only, subtle fill on hover */
 .cta-ghost {
   background: transparent;
   color: #fff;
-  border: 2px solid rgba(255,255,255,0.7);
+  border: 2px solid var(--accent);
   padding: 0.85rem 1.75rem;
   font-weight: 700;
   text-transform: uppercase;
   font-size: 0.9rem;
   border-radius: 5px;
-  transition: border-color 0.3s, color 0.3s, transform 0.3s;
+  transition: background 0.3s, color 0.3s, transform 0.3s;
   display: inline-block;
   font-family: inherit;
 }
 .cta-ghost:hover {
-  border-color: var(--accent);
+  background: var(--accent-subtle);
   color: var(--accent);
   transform: translateY(-2px);
 }
@@ -168,15 +179,15 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 .teasers    { padding: 2rem 0; background: #fff; }
 .teasers h2 { text-align: center; font-size: 2.5rem; font-weight: 300; margin-bottom: 3rem; letter-spacing: 0.1em; }
 
-/* Outer wrapper — provides space on sides for the nav arrows,
-   keeping them well clear of the poster cards */
+/* Outer wrapper — side padding creates clear space for arrows on desktop */
 .swiper-outer {
   position: relative;
   padding: 0 56px;
 }
 
-.swiper         { width: 100%; height: 100%; }
-.swiper-slide   { display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+.swiper       { width: 100%; height: 100%; }
+.swiper-slide { display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+
 .featured-swiper {
   position: relative;
   width: 100%;
@@ -207,8 +218,7 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 .featured-card h3 { font-size: 1.3rem; margin: 0 0 0.5rem; text-align: center; }
 .featured-card p  { font-size: 0.9rem; margin: 0; text-align: center; opacity: 0.9; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
-/* Arrows — positioned on .swiper-outer so they sit outside
-   the overflow:hidden swiper, clearing the poster cards */
+/* Arrows — on .swiper-outer so they clear the overflow:hidden swiper on desktop */
 .swiper-button-prev,
 .swiper-button-next {
   position: absolute;
@@ -222,6 +232,7 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
   color: #000 !important;
   z-index: 10;
   cursor: pointer;
+  margin-top: 0;
 }
 .swiper-button-prev { left: 0; }
 .swiper-button-next { right: 0; }
@@ -231,8 +242,8 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
   font-weight: bold;
 }
 
-.swiper-pagination           { position: relative; margin-top: 2rem; text-align: center; }
-.swiper-pagination-bullet    { background: #000; }
+.swiper-pagination              { position: relative; margin-top: 2rem; text-align: center; }
+.swiper-pagination-bullet       { background: #000; }
 .swiper-pagination-bullet-active { background: #000; }
 
 /* ============================================================
@@ -250,16 +261,6 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
   align-items: start;
   justify-items: center;
 }
-.bio-image {
-  width: 100%; height: 400px; background: #ddd; border-radius: 10px;
-  background-image: url('images/about-still-01.jpg');
-  background-size: cover;
-  background-position: 33% 50%;
-  filter: grayscale(90%);
-  transition: filter 0.4s ease;
-}
-.bio-image:hover { filter: grayscale(0%); }
-
 .bio-content h2 { font-size: 2rem; font-weight: 300; margin-bottom: 2rem; letter-spacing: 0.1em; }
 .bio-content ul { list-style: none; padding: 0; margin: 0; }
 .bio-content li {
@@ -270,17 +271,97 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 .bio-content li i           { margin-right: 0.5rem; width: 1rem; opacity: 0.5; flex-shrink: 0; transition: color 0.3s; }
 .bio-content li:hover i     { color: #333; }
 
-/* Language tags — no border, accent color text + play icon.
-   Pill border removed; interactivity is clear from color + play icon alone. */
+/* Bio image wrapper — stacks portrait and cert on top of each other */
+.bio-image-wrap {
+  width: 100%;
+  position: relative;
+}
+
+/* Shared base for both image layers */
+.bio-image {
+  width: 100%;
+  height: 400px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: 33% 50%;
+  transition: opacity 0.5s ease;
+}
+
+/* Portrait layer — visible by default */
+.bio-img-portrait {
+  background-image: url('images/about-still-01.jpg');
+  filter: grayscale(90%);
+  transition: filter 0.4s ease, opacity 0.5s ease;
+  position: relative;
+  z-index: 1;
+}
+.bio-img-portrait:hover { filter: grayscale(0%); }
+
+/* Certificate layer — absolutely positioned over portrait, hidden by default */
+.bio-img-cert {
+  position: absolute;
+  inset: 0;
+  height: 400px;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.5s ease;
+}
+.bio-img-cert img {
+  max-width: 92%;
+  max-height: 92%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* Active state — cert visible, portrait hidden */
+.bio-image-wrap.cert-active .bio-img-portrait { opacity: 0; }
+.bio-image-wrap.cert-active .bio-img-cert     { opacity: 1; pointer-events: auto; }
+
+/* Caption — hidden until cert is active */
+.bio-cert-caption {
+  text-align: center;
+  font-size: 0.82rem;
+  opacity: 0;
+  color: #555;
+  margin: 0.5rem 0 0;
+  height: 1.2em;
+  transition: opacity 0.4s ease 0.3s;   /* slight delay so it fades in after image */
+  pointer-events: none;
+}
+.bio-image-wrap.cert-active .bio-cert-caption {
+  opacity: 0.7;
+}
+
+/* Language item — icon and label on same baseline row,
+   tags wrapping below. Fixes globe icon floating above text. */
 .lang-item {
+  flex-direction: column !important;
   align-items: flex-start !important;
-  flex-wrap: wrap;
-  gap: 0.4rem 0 !important;
+  gap: 0.4rem !important;
 }
 .lang-item:hover { transform: none !important; }
-.lang-label { white-space: nowrap; margin-right: 0.4rem; flex-shrink: 0; }
-.lang-tags  { display: flex; flex-wrap: wrap; gap: 0.3rem; }
 
+.lang-item-top {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.lang-item-top i {
+  margin-right: 0.5rem;
+  width: 1rem;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.lang-label { white-space: nowrap; }
+.lang-tags  { display: flex; flex-wrap: wrap; gap: 0.3rem; padding-left: 1.5rem; }
+
+/* Language tags — accent text, no border, play icon signals interactivity */
 .lang-tag {
   background: none;
   border: none;
@@ -301,7 +382,7 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 .lang-tag:hover         { color: var(--accent-hover); opacity: 0.8; }
 .lang-tag:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
 
-/* Certificate accordion */
+/* Certificate trigger row */
 .cert-item {
   flex-direction: column !important;
   align-items: stretch !important;
@@ -327,24 +408,6 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 }
 .cert-trigger[aria-expanded="true"] .cert-chevron { transform: rotate(180deg); }
 .cert-trigger:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
-
-.cert-accordion {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.45s ease;
-  text-align: center;
-}
-.cert-accordion.open { max-height: 520px; }
-.cert-accordion img {
-  max-width: 90%;
-  border-radius: 8px;
-  margin-top: 1rem;
-  border: 1px solid #ddd;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-.cert-accordion p { font-size: 0.85rem; opacity: 0.6; margin: 0.5rem 0 0.75rem; }
 
 /* ============================================================
    GALLERY
@@ -447,7 +510,7 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 .lightbox-next:hover { color: #ccc; }
 
 /* ============================================================
-   LANGUAGE VIDEO MODAL (portrait 9:16 — YouTube Shorts)
+   LANGUAGE VIDEO MODAL
    ============================================================ */
 .lang-modal {
   display: flex;
@@ -479,11 +542,8 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
   max-width: min(340px, calc(100vw - 2rem));
 }
 .lang-modal-label {
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.85;
+  font-size: 1rem; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85;
 }
 .lang-modal-close {
   background: none; border: none; color: #fff;
@@ -514,13 +574,18 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 .card-text       { width: 100%; text-align: center; }
 .card-text h2    { font-size: 2rem; font-weight: 300; margin-bottom: 0.5rem; letter-spacing: 0.1em; opacity: 0.8; }
 .card-text .underline { width: 100px; height: 1px; background: var(--accent); margin: 0 auto 2rem; }
-.card-text ul    { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem; justify-content: center; align-items: center; }
-.card-text li    { font-size: 1.1rem; opacity: 0.8; display: flex; align-items: center; gap: 0.5rem; transition: transform 0.3s, color 0.25s; justify-content: center; }
-/* Accent color on contact link hover */
-.card-text li:hover              { transform: translateX(4px); color: var(--accent); opacity: 1; }
-.card-text li:hover a            { color: var(--accent); }
-.card-text li i                  { font-size: 1.2rem; transition: color 0.25s; }
-.card-text li:hover i            { color: var(--accent); }
+.card-text ul {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 1rem; justify-content: center; align-items: center;
+}
+.card-text li {
+  font-size: 1.1rem; opacity: 0.8; display: flex; align-items: center;
+  gap: 0.5rem; transition: transform 0.3s, color 0.25s; justify-content: center;
+}
+.card-text li:hover            { transform: translateX(4px); color: var(--accent); opacity: 1; }
+.card-text li:hover a          { color: var(--accent); }
+.card-text li i                { font-size: 1.2rem; transition: color 0.25s; }
+.card-text li:hover i          { color: var(--accent); }
 
 /* ============================================================
    FOOTER
@@ -528,7 +593,6 @@ nav ul li a.nav-active { color: var(--accent); font-weight: 700; }
 footer { background: #000; color: #fff; padding: 2rem 0; text-align: center; }
 .footer-icons { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap; }
 .footer-icons a { color: #fff; font-size: 1.5rem; transition: color 0.25s, transform 0.3s; }
-/* Accent on footer icon hover */
 .footer-icons a:hover { color: var(--accent); transform: rotate(5deg); }
 .copyright { opacity: 0.7; font-size: 0.9rem; }
 
@@ -549,8 +613,8 @@ footer { background: #000; color: #fff; padding: 2rem 0; text-align: center; }
    ANIMATIONS
    ============================================================ */
 @keyframes heroFadeIn {
-  from { opacity: 0; background-position: 72% 30%; }
-  to   { opacity: 1; background-position: 72% 33%; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
@@ -568,18 +632,18 @@ footer { background: #000; color: #fff; padding: 2rem 0; text-align: center; }
   body { background-color: #121212; color: #e0e0e0; }
 
   nav { background: #1e1e1e; border-bottom: 1px solid #333; }
-  nav .site-title              { color: #e0e0e0; }
-  nav ul li a                  { color: #e0e0e0; }
+  nav .site-title               { color: #e0e0e0; }
+  nav ul li a                   { color: #e0e0e0; }
   nav ul li a:hover,
   nav ul li a.nav-active        { color: var(--accent); }
-  .hamburger span              { background: #fff; }
+  .hamburger span               { background: #fff; }
 
-  .cta       { background: var(--accent); color: #fff; }
-  .cta:hover { background: var(--accent-hover); }
-  .cta-ghost { color: #fff; border-color: rgba(255,255,255,0.5); }
-  .cta-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .cta       { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .cta:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .cta-ghost { color: var(--accent); border-color: var(--accent); }
+  .cta-ghost:hover { background: var(--accent-subtle); color: var(--accent); }
 
-  .teasers { background: #1a1a1a; }
+  .teasers    { background: #1a1a1a; }
   .teasers h2 { color: #e0e0e0; }
   .featured-overlay, .featured-card h3, .featured-card p { color: #e0e0e0; }
   .featured-swiper::before { background: linear-gradient(to right, #1a1a1a 10%, transparent 100%); }
@@ -597,19 +661,17 @@ footer { background: #000; color: #fff; padding: 2rem 0; text-align: center; }
   .bio-content li         { color: #e0e0e0; }
   .bio-content li i       { color: #fff; }
   .bio-content li:hover i { color: #ccc; }
+  .bio-img-cert           { background: #2a2a2a; }
+  .bio-cert-caption       { color: #aaa; }
 
   .lang-tag       { color: var(--accent); }
   .lang-tag:hover { color: var(--accent-hover); }
-
-  .cert-accordion img { border-color: #444; }
-  .cert-accordion p   { color: #bbb; }
 
   .gallery-tease    { background: #1a1a1a; }
   .gallery-tease h2 { color: #e0e0e0; }
   .gallery-item           { box-shadow: 0 2px 4px rgba(255,255,255,0.2); }
   .gallery-item:hover     { box-shadow: 0 4px 8px rgba(255,255,255,0.1); }
-  .gallery-tabs           { background: transparent; }
-  .tab-btn                { color: #eee; }
+  .tab-btn { color: #eee; }
 
   .contact-section { background: #1a1a1a; }
   .contact-card    { background: #2a2a2a; border: 2px solid #444; }
@@ -617,7 +679,7 @@ footer { background: #000; color: #fff; padding: 2rem 0; text-align: center; }
   .card-text li    { color: #e0e0e0; }
   .card-text li:hover,
   .card-text li:hover a,
-  .card-text li:hover i    { color: var(--accent); }
+  .card-text li:hover i { color: var(--accent); }
 
   footer { background: #0d0d0d; }
   .footer-icons a       { color: #fff; }
@@ -632,15 +694,22 @@ footer { background: #000; color: #fff; padding: 2rem 0; text-align: center; }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1200px) {
-  .hero-content { margin-right: 15%; }
+  .hero-content { margin-left: 3%; }
 }
 
 @media (max-width: 768px) {
-  .hero h1      { font-size: 3rem; margin: 0 0 -1rem; }
-  .hero-content { padding: 1rem 1rem 4rem; margin-right: 0; }
-  .tagline      { font-size: 1.2rem; }
-  .hero         { padding-top: 80px; align-items: flex-end; justify-content: center; text-align: center; }
+  /* Hero — larger text, left-aligned, reduced bottom padding */
+  .hero h1      { font-size: 3.8rem; margin: 0 0 -0.8rem; white-space: normal; }
+  .tagline      { font-size: 1.4rem; }
+  .hero-content {
+    padding: 1rem 1.5rem 3rem;
+    margin-left: 0;
+    text-align: left;
+    max-width: 100%;
+  }
+  .cta-group    { justify-content: flex-start; }
 
+  /* Mobile nav — larger font size */
   .hamburger { display: flex; }
   nav ul {
     position: fixed; top: 80px; right: -100%; width: 100%; height: calc(100vh - 80px);
@@ -650,14 +719,30 @@ footer { background: #000; color: #fff; padding: 2rem 0; text-align: center; }
   }
   nav ul.active { right: 0; }
   nav ul li     { margin: 1rem 0; }
-  nav ul li a   { color: #fff; }
+  nav ul li a   { color: #fff; font-size: 1.4rem; }
 
-  /* Swiper outer — reduce side padding so arrows don't push content too tight */
-  .swiper-outer { padding: 0 40px; }
+  /* Filmography — full width on mobile, arrows inside swiper */
+  .swiper-outer { padding: 0; }
+  .swiper-button-prev,
+  .swiper-button-next {
+    /* revert to inside-swiper positioning on mobile */
+    position: absolute;
+    z-index: 10;
+    color: #fff !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+  .swiper-button-prev { left: 4px; }
+  .swiper-button-next { right: 4px; }
 
+  /* About */
   .bio .container  { grid-template-columns: 1fr; gap: 2rem; justify-items: left; }
   .bio-content     { text-align: left; margin-left: 1.2rem; }
-  .contact-card    { flex-direction: column; gap: 1rem; }
+  .bio-image-wrap  { width: calc(100% - 2.4rem); margin-left: 1.2rem; }
+
+  /* Contact */
+  .contact-card { flex-direction: column; gap: 1rem; }
+
+  /* Swiper */
   .featured-card   { width: auto; height: 400px; }
   .featured-swiper { padding: 0; }
   .swiper-pagination { bottom: -10px; }

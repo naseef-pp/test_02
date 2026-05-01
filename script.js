@@ -1,4 +1,55 @@
 // ============================================================
+// 100SVH FALLBACK — iOS Safari viewport height fix
+// Sets --vh based on window.innerHeight for browsers that
+// don't support the svh unit (older iOS Safari < 16).
+// The hero uses var(--hero-height) which is 100svh in CSS;
+// this override only activates when svh is unsupported.
+// ============================================================
+(function setVhFallback() {
+  // Only apply if svh is not supported
+  const testEl = document.createElement('div');
+  testEl.style.height = '1svh';
+  document.body.appendChild(testEl);
+  const svhSupported = testEl.offsetHeight > 0;
+  document.body.removeChild(testEl);
+
+  if (!svhSupported) {
+    const setVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--hero-height', `${window.innerHeight}px`);
+    };
+    setVh();
+    // Update on resize but NOT on scroll — avoids jump during scroll
+    window.addEventListener('resize', setVh, { passive: true });
+  }
+})();
+
+// ============================================================
+// JS PARALLAX — hero background scrolls at half speed
+// Uses requestAnimationFrame for smooth composited animation.
+// The .hero-bg element is position:fixed; we offset it with
+// translateY so the image appears to move slower than content,
+// creating a sense of depth.
+// ============================================================
+const heroBg = document.querySelector('.hero-bg');
+let ticking  = false;
+
+function updateParallax() {
+  if (!heroBg) return;
+  // Half-speed: background moves up at 50% of scroll rate
+  const offset = window.scrollY * 0.4;
+  heroBg.style.transform = `translateY(-${offset}px)`;
+  ticking = false;
+}
+
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(updateParallax);
+    ticking = true;
+  }
+}, { passive: true });
+
+// ============================================================
 // NAV — Smooth scroll + history cleanup + mobile close
 // ============================================================
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -26,8 +77,7 @@ if (hamburger && navMenu) {
 }
 
 // ============================================================
-// ACTIVE NAV INDICATOR — IntersectionObserver
-// Page now uses standard document scroll so root is null (viewport).
+// ACTIVE NAV INDICATOR — IntersectionObserver on window scroll
 // ============================================================
 const navLinks = document.querySelectorAll('#nav-menu a');
 const sections = document.querySelectorAll('section[id]');
@@ -42,7 +92,7 @@ const navObserver = new IntersectionObserver((entries) => {
     }
   });
 }, {
-  root: null,                      // standard viewport — works now that .parallax is gone
+  root: null,
   rootMargin: '-40% 0px -40% 0px',
   threshold: 0,
 });
@@ -50,8 +100,6 @@ sections.forEach(section => navObserver.observe(section));
 
 // ============================================================
 // SWIPER — Featured works
-// Nav buttons are outside .featured-swiper in the HTML,
-// so Swiper finds them via the selector strings below.
 // ============================================================
 const swiper = new Swiper('.featured-swiper', {
   slidesPerView: 1.2,
@@ -75,7 +123,6 @@ const swiper = new Swiper('.featured-swiper', {
   },
 });
 
-// Pause autoplay on interaction, auto-resume after 15s
 let pauseTimer;
 function pauseAutoplay() {
   swiper.autoplay.stop();
@@ -89,16 +136,14 @@ if (swiperNextBtn) swiperNextBtn.addEventListener('click', pauseAutoplay);
 if (swiperPrevBtn) swiperPrevBtn.addEventListener('click', pauseAutoplay);
 
 // ============================================================
-// BACK-TO-TOP
-// Now uses window scroll — .parallax wrapper no longer exists.
+// BACK-TO-TOP — window scroll
 // ============================================================
 const backToTopBtn = document.querySelector('.back-to-top');
 
-function handleScroll() {
+window.addEventListener('scroll', () => {
   if (!backToTopBtn) return;
   backToTopBtn.classList.toggle('show', window.scrollY > 300);
-}
-window.addEventListener('scroll', handleScroll, { passive: true });
+}, { passive: true });
 
 if (backToTopBtn) {
   backToTopBtn.addEventListener('click', () => {
@@ -143,16 +188,13 @@ function showLightbox(index, pushState = true) {
   const bg       = galleryItems[index].style.backgroundImage;
   const urlMatch = bg.match(/url\(["']?(.+?)["']?\)/i);
   if (!urlMatch) return;
-
   lightboxImg.src = urlMatch[1];
   scale = 1; currentX = 0; currentY = 0;
   lightboxImg.classList.remove('zoomed');
   lightboxImg.style.transform = 'scale(1)';
-
   lightbox.classList.add('show');
   currentIndex   = index;
   lightboxActive = true;
-
   if (pushState) history.pushState({ lightbox: true }, '', '#lightbox');
 }
 
@@ -178,7 +220,6 @@ function clampPan() {
 }
 
 galleryItems.forEach((item, i) => item.addEventListener('click', () => showLightbox(i)));
-
 closeBtn.addEventListener('click', () => closeLightbox());
 lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
 
@@ -198,7 +239,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape')     closeLightbox();
 });
 
-// Mobile swipe in lightbox
 let touchStartX = 0, touchStartY = 0, touchStartTime = 0, isPotentialSwipe = true;
 
 lightbox.addEventListener('touchstart', (e) => {
@@ -210,7 +250,6 @@ lightbox.addEventListener('touchstart', (e) => {
     isDragging = true; startX = touch.clientX - currentX; startY = touch.clientY - currentY;
   }
 });
-
 lightbox.addEventListener('touchmove', (e) => {
   if (!lightboxActive) return;
   if (e.touches.length > 1) { isPotentialSwipe = false; return; }
@@ -220,7 +259,6 @@ lightbox.addEventListener('touchmove', (e) => {
   const dX = Math.abs(touch.clientX - touchStartX);
   if (dY > dX + 20) isPotentialSwipe = false;
 });
-
 lightbox.addEventListener('touchend', (e) => {
   if (!lightboxActive || !isPotentialSwipe) { isDragging = false; return; }
   const touch     = e.changedTouches[0];
@@ -256,18 +294,38 @@ lightboxInner.addEventListener('mousemove', e => {
 });
 
 // ============================================================
-// CERTIFICATE ACCORDION
+// CERTIFICATE — crossfade bio image slot
+// Clicking the training row swaps the portrait image for the
+// certificate image in the same slot. Clicking again restores.
+// On mobile, auto-scrolls the image wrap into view.
 // ============================================================
-const certTrigger   = document.querySelector('.cert-trigger');
-const certAccordion = document.querySelector('.cert-accordion');
+const certTrigger  = document.querySelector('.cert-trigger');
+const bioImageWrap = document.querySelector('.bio-image-wrap');
+const bioCertCaption = document.querySelector('.bio-cert-caption');
+const isMobileQuery  = () => window.innerWidth <= 768;
 
-if (certTrigger && certAccordion) {
+if (certTrigger && bioImageWrap) {
   function toggleCert() {
     const isOpen = certTrigger.getAttribute('aria-expanded') === 'true';
-    certTrigger.setAttribute('aria-expanded', String(!isOpen));
-    certAccordion.setAttribute('aria-hidden',  String(isOpen));
-    certAccordion.classList.toggle('open', !isOpen);
+    const nowOpen = !isOpen;
+
+    certTrigger.setAttribute('aria-expanded', String(nowOpen));
+    bioImageWrap.classList.toggle('cert-active', nowOpen);
+
+    // Update caption text
+    if (bioCertCaption) {
+      bioCertCaption.textContent = nowOpen ? 'Nova Film Institute, Ernakulam' : '';
+    }
+
+    // On mobile, scroll image into view after a short delay
+    // so the crossfade has started before the user looks
+    if (nowOpen && isMobileQuery()) {
+      setTimeout(() => {
+        bioImageWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 150);
+    }
   }
+
   certTrigger.addEventListener('click', toggleCert);
   certTrigger.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCert(); }
@@ -275,13 +333,8 @@ if (certTrigger && certAccordion) {
 }
 
 // ============================================================
-// LANGUAGE VIDEO MODAL
-// YouTube IFrame Player API — portrait 9:16 (Shorts format)
-// Auto-close on video end (state 0).
-// Close button works at DOM level — independent of player state.
+// LANGUAGE VIDEO MODAL — YouTube IFrame Player API
 // ============================================================
-
-// Load YouTube IFrame API dynamically
 (function loadYouTubeAPI() {
   const tag = document.createElement('script');
   tag.src   = 'https://www.youtube.com/iframe_api';
@@ -304,13 +357,11 @@ function openLangVideo(videoId, langName) {
   langModal.classList.add('show');
   document.body.style.overflow = 'hidden';
 
-  // Destroy any previous player cleanly
   if (langPlayer) {
     try { langPlayer.destroy(); } catch (e) {}
     langPlayer = null;
   }
 
-  // Recreate the target div (destroy() removes the element)
   const container = document.getElementById('lang-player-container');
   container.innerHTML = '<div id="lang-youtube-player"></div>';
 
@@ -328,9 +379,7 @@ function openLangVideo(videoId, langName) {
       },
       events: {
         onStateChange(event) {
-          if (event.data === YT.PlayerState.ENDED) {
-            closeLangModal();
-          }
+          if (event.data === YT.PlayerState.ENDED) closeLangModal();
         },
       },
     });
@@ -350,11 +399,8 @@ function openLangVideo(videoId, langName) {
 }
 
 function closeLangModal() {
-  // Hide at DOM level first — always works regardless of player state
   langModal.classList.remove('show');
   document.body.style.overflow = '';
-
-  // Destroy player after CSS fade-out completes
   setTimeout(() => {
     if (langPlayer) {
       try { langPlayer.destroy(); } catch (e) {}
