@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Naseef P P - Actor</title>
 
-  <meta name="description" content="Naseef P P — Actor and Director based in Kerala. Featured in Soothravakyam (2025). Available for film, short film, and commercial projects." />
+  <meta name="description" content="Naseef P P — Actor and Filmmaker based in Kerala. Featured in Soothravakyam (2025). Available for film, short film, and commercial projects." />
 
   <!-- Favicons -->
   <link rel="icon" type="image/x-icon" href="images/favicon_io/favicon.ico" />
@@ -29,7 +29,7 @@
 
   <!-- Open Graph -->
   <meta property="og:title" content="Naseef P P" />
-  <meta property="og:description" content="Actor | Director | Featured in Soothravakyam (2025)" />
+  <meta property="og:description" content="Actor | Filmmaker | Featured in Soothravakyam (2025)" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://naseefpp.github.io/portfolio/" />
   <meta property="og:image" content="https://naseefpp.github.io/portfolio/images/og-preview.jpg" />
@@ -41,17 +41,16 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Naseef P P" />
-  <meta name="twitter:description" content="Actor | Director | Soothravakyam (2025)" />
+  <meta name="twitter:description" content="Actor | Filmmaker | Soothravakyam (2025)" />
   <meta name="twitter:image" content="https://naseefpp.github.io/portfolio/images/og-preview.jpg" />
   <meta name="twitter:image:alt" content="Naseef P P - Actor Headshot" />
 </head>
 <body>
 
-  <!-- Hero background — JS parallax scrolls this at half speed.
-       position:fixed is the base; translateY is updated on scroll. -->
+  <!-- Fixed parallax hero background -->
   <div class="hero-bg" aria-hidden="true"></div>
 
-  <!-- Navigation — order: Home › Filmography › About › Gallery › Contact -->
+  <!-- Navigation -->
   <nav>
     <div class="container">
       <div class="logo">
@@ -60,7 +59,7 @@
       <ul id="nav-menu">
         <li><a href="#home">Home</a></li>
         <li><a href="#teasers">Filmography</a></li>
-        <li><a href="#about">About</a></li>
+        <li><a href="#about">Profile</a></li>
         <li><a href="#gallery">Gallery</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
@@ -74,10 +73,14 @@
   <section id="home" class="hero">
     <div class="hero-content">
       <h1>Naseef P P</h1>
-      <p class="tagline">Actor • Director</p>
+      <!-- Thin accent rule between name and tagline -->
+      <div class="hero-rule" aria-hidden="true"></div>
+      <p class="tagline">Actor &amp; Filmmaker</p>
       <div class="cta-group">
-        <a href="#teasers" class="cta">View Filmography</a>
-        <a href="#contact" class="cta cta-ghost">Get in Touch</a>
+        <!-- Primary: solid accent fill -->
+        <a href="#teasers" class="cta-primary">View Filmography</a>
+        <!-- Ghost: accent border + text, no fill, subtle fill on hover -->
+        <a href="#contact" class="cta-ghost">Get in Touch</a>
       </div>
     </div>
   </section>
@@ -188,7 +191,6 @@
 
           </div>
         </div>
-        <!-- Arrows outside swiper on desktop, inside on mobile via CSS -->
         <div class="swiper-button-prev"></div>
         <div class="swiper-button-next"></div>
       </div>
@@ -196,11 +198,11 @@
     </div>
   </section>
 
-  <!-- ABOUT -->
+  <!-- PROFILE (formerly About) -->
   <section id="about" class="bio">
     <div class="container">
       <div class="bio-content">
-        <h2>About Me</h2>
+        <h2>Profile</h2>
         <ul>
           <li><i class="fas fa-calendar-alt"></i> Age Range: 18–28</li>
           <li><i class="fas fa-ruler-vertical"></i> Height: 173 cm</li>
@@ -208,7 +210,7 @@
           <li><i class="fas fa-palette"></i> Hair: Curly, Black</li>
           <li><i class="fas fa-eye"></i> Eyes: Dark Brown</li>
 
-          <!-- Language pills -->
+          <!-- Language pills — hover changes to darker accent -->
           <li class="lang-item">
             <span class="lang-item-top">
               <i class="fas fa-globe"></i>
@@ -230,12 +232,17 @@
             </span>
           </li>
 
-          <!-- Training — click swaps bio image with certificate -->
+          <!-- Training — click crossfades bio image to certificate.
+               Two chevrons: desktop shows right/left, mobile shows down/up.
+               Both rotate 180deg on active — right→left, down→up. -->
           <li class="cert-item">
             <div class="cert-trigger" tabindex="0" role="button" aria-expanded="false">
               <i class="fas fa-graduation-cap"></i>
               <span>Training: Screen Acting Course, Nova Film Institute</span>
-              <i class="fas fa-chevron-down cert-chevron"></i>
+              <!-- Desktop: points right (→ left when active) -->
+              <i class="fas fa-chevron-right cert-chevron cert-chevron-desktop" aria-hidden="true"></i>
+              <!-- Mobile: points down (→ up when active) -->
+              <i class="fas fa-chevron-down cert-chevron cert-chevron-mobile" aria-hidden="true"></i>
             </div>
           </li>
 
@@ -255,8 +262,6 @@
                alt="Nova Film Institute Screen Acting Course Certificate"
                loading="lazy" />
         </div>
-        <!-- Caption shown only when certificate is active -->
-        <p class="bio-cert-caption" aria-live="polite"></p>
       </div>
 
     </div>
