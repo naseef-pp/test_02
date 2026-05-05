@@ -311,7 +311,7 @@ const langModalTitle = document.getElementById('lang-modal-title');
 const langModalClose = document.querySelector('.lang-modal-close');
 
 function openLangVideo(videoId, langName) {
-  langModalTitle.textContent = `Introducing in ${langName}`;
+  langModalTitle.textContent = `${langName}`;
   langModal.classList.add('show');
   document.body.style.overflow = 'hidden';
 
