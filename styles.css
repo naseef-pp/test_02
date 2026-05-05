@@ -33,7 +33,7 @@ a { text-decoration: none; color: inherit; }
   inset: 0;
   background-image: url('images/hero-headshot-mango.jpg');
   background-size: cover;
-  background-position: 72% 33%;
+  background-position: 78% 33%;
   will-change: transform;
   animation: heroFadeIn 1.5s ease-out both;
   z-index: -1;
